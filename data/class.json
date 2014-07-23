@@ -1,0 +1,11 @@
+{
+  "auto-scaling-groups": [
+    {
+      "name": "orbi-class-t1micro-ondemand-1"
+    },
+
+    {
+      "name": "orbi-class-t1micro-spot-1"
+    }
+  ]
+}
