@@ -1,11 +1,18 @@
 {
-  "auto-scaling-groups": [
+  "auto_scaling_groups": [
     {
-      "name": "orbi-class-t1micro-ondemand-1"
+      "name": "orbi-class-t1micro-ondemand-1",
+      "launch_configuration_template": {
+        "name_prefix": "lc-orbi-class-m1small-ondemand-"
+      }
     },
 
     {
-      "name": "orbi-class-t1micro-spot-1"
+      "name": "orbi-class-t1micro-spot-1",
+      "launch_configuration_template": {
+        "name_prefix": "lc-orbi-class-m1small-spot-",
+        "spot_price": 0.0027
+      }
     }
   ]
 }
