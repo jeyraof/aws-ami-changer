@@ -28,6 +28,7 @@ class LaunchConfigurationManager(object):
     def __init__(self, lc, connection):
         if lc:
             self.lc = lc
+            self.block_device_mappings = BlockDeviceManager(lc=self.lc).get_block_device_mapping()  # block device
             self.connection = connection
 
     def clone_by_template(self, image_id, template):
@@ -39,12 +40,9 @@ class LaunchConfigurationManager(object):
         template[u'name'] = template.get(u'name_prefix', self.lc.name + u'-') + today_string
         del template[u'name_prefix']
 
-        # block device mappings
-        block_device_mappings = BlockDeviceManager(lc=self.lc).get_block_device_mapping()
-
         # Cannot deepcopy LaunchConfiguration Model
         renewal_lc = LaunchConfiguration(instance_type=self.lc.instance_type,
-                                         block_device_mappings=block_device_mappings,
+                                         block_device_mappings=self.block_device_mappings,
                                          key_name=self.lc.key_name,
                                          security_groups=self.lc.security_groups,
                                          image_id=image_id,
@@ -75,8 +73,11 @@ class LaunchConfigurationManager(object):
             return False
 
 
-class AmazonMachineImageManager(object):
-    pass
+class AmazonMachineImagesManager(object):
+    def __init__(self):
+        pass
+
+
 
 
 class BlockDeviceManager(object):
