@@ -28,9 +28,9 @@ class Processor(object):
             lc_template = utils.get_lc_template_by_group_name(self._config, as_group_name)
             renewal_lc = lc_manager.clone_by_template(image_id=image_id, template=lc_template)
 
-            print renewal_lc
+            # print lc.block_device_mappings[0].__dict__.get('ebs').__dict__
 
-            # lc_created_flag = lc_manager.create_renewal_launch_configuration(renewal_lc=renewal_lc)
-            # print lc_created_flag
+            lc_created_flag = lc_manager.create_renewal_launch_configuration(renewal_lc=renewal_lc)
+            print lc_created_flag
 
             # TODO: 6. Apply created LC to Group

@@ -11,7 +11,7 @@
       "name": "orbi-class-t1micro-spot-1",
       "launch_configuration_template": {
         "name_prefix": "lc-orbi-class-m1small-spot-",
-        "spot_price": 0.0027
+        "spot_price": 0.027
       }
     }
   ]
