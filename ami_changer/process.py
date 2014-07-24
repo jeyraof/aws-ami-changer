@@ -2,7 +2,7 @@
 
 import json
 from ami_changer import utils
-from ami_changer.autoscaling import LaunchConfigurationManager
+from ami_changer.autoscaling import (LaunchConfigurationManager, AmazonMachineImagesManager, )
 
 
 class Processor(object):
@@ -38,12 +38,15 @@ class Processor(object):
 
     def step_2(self):
         # TODO: Launch temporary instance using current ami to fetching data.
-        # self._ec2_conn.run_instances(image_id=lc.image_id,
-        #                              key_name=lc.key_name,
-        #                              instance_type=lc.instance_type,
-        #                              security_groups=lc.security_groups,
-        #                              user_data=lc.user_data,
-        #                              block_device_map=lc_manager.block_device_mappings[0])
+        self.result_box['ami_manager'] = AmazonMachineImagesManager(lc_manager=self.result_box['lc_manager'],
+                                                                    connection=self._ec2_conn)
+        utils.print_arrow(u'AMI manager was generated.')
+
+        self.result_box['ami_manager'].launch_instance()
+        utils.print_arrow(u'Temporary instance launched')
+
+        # TODO: Pending and check
+
         self.result_box['image_id'] = u'ami-9d82d09c'
 
     def step_3(self):

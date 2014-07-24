@@ -74,10 +74,19 @@ class LaunchConfigurationManager(object):
 
 
 class AmazonMachineImagesManager(object):
-    def __init__(self):
-        pass
+    def __init__(self, lc_manager, connection):
+        self.lc_manager = lc_manager
+        self.lc = lc_manager.lc
+        self.connection = connection
+        self.reservation = None
 
-
+    def launch_instance(self):
+        self.reservation = self.connection.run_instances(image_id=self.lc.image_id,
+                                                         key_name=self.lc.key_name,
+                                                         instance_type=self.lc.instance_type,
+                                                         security_groups=self.lc.security_groups,
+                                                         user_data=self.lc.user_data,
+                                                         block_device_map=self.lc_manager.block_device_mappings[0])
 
 
 class BlockDeviceManager(object):
