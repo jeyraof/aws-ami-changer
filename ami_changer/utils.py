@@ -18,3 +18,12 @@ def overwrite_launch_configuration(lc, template):
     for key, val in template.iteritems():
         setattr(lc, key, val)
     return lc
+
+
+def print_logo():
+    print
+    print u' \n \033[95m[AMI Changer]\033[0m'
+
+
+def print_arrow(text):
+    print u' \033[91m=>\033[0m ' + text

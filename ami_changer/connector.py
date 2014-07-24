@@ -2,9 +2,8 @@
 
 import os
 import sys
-import json
 
-from boto.ec2 import autoscale
+from boto.ec2 import autoscale, connect_to_region
 from ami_changer.autoscaling import AutoScalingManager
 
 
@@ -22,6 +21,11 @@ class Connection(object):
                                                               aws_access_key_id=self._aws_access_key,
                                                               aws_secret_access_key=self._aws_secret_key)
         return AutoScalingManager(connection=auto_scaling_connection)
+
+    def ec2_connection(self):
+        return connect_to_region(self._aws_region,
+                                 aws_access_key_id=self._aws_access_key,
+                                 aws_secret_access_key=self._aws_secret_key)
 
 
 class NoEnvironmentSetExcept(Exception):
