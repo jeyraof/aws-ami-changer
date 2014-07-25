@@ -30,14 +30,14 @@ class LaunchConfigurationManager(object):
             self.lc = lc
             self.block_device_mappings = BlockDeviceManager(lc=self.lc).get_block_device_mapping()  # block device
             self.connection = connection
+            self.date_string = datetime.now().replace(microsecond=0).strftime(u'%Y%m%d_%H%M%S')
 
     def clone_by_template(self, image_id, template):
         # image id
         template[u'image_id'] = image_id
 
         # ami name
-        today_string = datetime.now().replace(microsecond=0).strftime(u'%Y%m%d_%H%M%S')
-        template[u'name'] = template.get(u'name_prefix', self.lc.name + u'-') + today_string
+        template[u'name'] = template.get(u'name_prefix', self.lc.name + u'-') + self.date_string
         del template[u'name_prefix']
 
         # Cannot deepcopy LaunchConfiguration Model
@@ -72,6 +72,12 @@ class LaunchConfigurationManager(object):
             print inst
             return False
 
+    def get_launch_configuration_by(self, lc_name):
+        lcs = self.connection.get_all_launch_configurations(names=[lc_name])
+        if lcs:
+            return lcs.pop()
+        return None
+
 
 class AmazonMachineImagesManager(object):
     def __init__(self, lc_manager, connection):
@@ -79,14 +85,59 @@ class AmazonMachineImagesManager(object):
         self.lc = lc_manager.lc
         self.connection = connection
         self.reservation = None
+        self.new_image = None
+        self.new_image_id = None
+        self.new_image_name = None
 
-    def launch_instance(self):
+    def launch_instance(self, start_script_path=None, dry_run=False):
+        user_data = self.lc.user_data
+        if start_script_path:
+            user_data = utils.merge_string_from_file(user_data, start_script_path)
+        user_data = utils.user_data_encode(user_data)
+
         self.reservation = self.connection.run_instances(image_id=self.lc.image_id,
                                                          key_name=self.lc.key_name,
                                                          instance_type=self.lc.instance_type,
-                                                         security_groups=self.lc.security_groups,
-                                                         user_data=self.lc.user_data,
-                                                         block_device_map=self.lc_manager.block_device_mappings[0])
+                                                         security_group_ids=self.lc.security_groups,
+                                                         user_data=user_data,
+                                                         block_device_map=self.lc_manager.block_device_mappings[0],
+                                                         dry_run=dry_run,  # Testing
+                                                         )
+
+    def get_launched_instance(self):
+        if self.reservation:
+            pending_ids = [instance.id for instance in self.reservation.instances]
+            reservations = self.connection.get_all_instances(instance_ids=pending_ids)
+            if reservations:
+                reservation = reservations.pop()
+                instances = reservation.instances
+                if instances:
+                    return instances.pop()
+        return None
+
+    def get_instance_state(self, code=True):
+        launched_instance = self.get_launched_instance()
+        if code:
+            return launched_instance.state_code
+        else:
+            return launched_instance.state
+
+    def create_image(self, prefix):
+        instance = self.get_launched_instance()
+        if instance:
+            self.new_image_id = instance.create_image(name=prefix + self.lc_manager.date_string)
+            return self.new_image_id
+        else:
+            return None
+
+    def get_image_by(self, image_id):
+        images = self.connection.get_all_images(image_ids=[image_id])
+        if images:
+            return images.pop()
+        return None
+
+    def delete_image_by(self, image_id):
+        return self.connection.deregister_image(image_id=image_id)
 
 
 class BlockDeviceManager(object):

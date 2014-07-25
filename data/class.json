@@ -4,7 +4,9 @@
       "name": "orbi-class-t1micro-ondemand-1",
       "launch_configuration_template": {
         "name_prefix": "lc-orbi-class-m1small-ondemand-"
-      }
+      },
+      "start_script_path": "data/class_script.sh",
+      "ami_name_prefix": "orbi_class_"
     },
 
     {
@@ -12,7 +14,9 @@
       "launch_configuration_template": {
         "name_prefix": "lc-orbi-class-m1small-spot-",
         "spot_price": 0.027
-      }
+      },
+      "start_script_path": "data/class_script.sh",
+      "ami_name_prefix": "orbi_class_"
     }
   ]
 }
